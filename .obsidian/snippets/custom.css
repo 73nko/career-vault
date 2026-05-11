@@ -1,0 +1,119 @@
+/* ===================================================================
+   career-vault custom snippet
+   Sobrio. No pretende ser bonito, pretende ser legible.
+   Cambios mínimos sobre Things theme.
+   =================================================================== */
+
+/* Lectura más cómoda */
+.markdown-source-view.mod-cm6 .cm-content,
+.markdown-preview-view {
+  line-height: 1.65;
+}
+
+/* Headings con jerarquía clara */
+.markdown-preview-view h1,
+.cm-header-1 {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.markdown-preview-view h2,
+.cm-header-2 {
+  font-weight: 650;
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding-bottom: 0.2em;
+  margin-top: 1.8em;
+}
+
+/* Inline code legible */
+.markdown-preview-view code,
+.cm-inline-code {
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--background-secondary);
+}
+
+/* Tablas con respiro */
+.markdown-preview-view table {
+  border-collapse: collapse;
+}
+.markdown-preview-view th,
+.markdown-preview-view td {
+  padding: 0.55em 0.8em;
+}
+.markdown-preview-view th {
+  background: var(--background-secondary);
+  font-weight: 600;
+}
+
+/* Tags semánticos: colores por dominio.
+   No abuses: si ves todo el vault rosa, has tageado mal. */
+a.tag[href^="#status/draft"]   { background: #6b7280; color: #fff; }
+a.tag[href^="#status/review"]  { background: #f59e0b; color: #111; }
+a.tag[href^="#status/done"]    { background: #16a34a; color: #fff; }
+
+a.tag[href^="#difficulty/easy"]   { background: #16a34a; color: #fff; }
+a.tag[href^="#difficulty/medium"] { background: #f59e0b; color: #111; }
+a.tag[href^="#difficulty/hard"]   { background: #dc2626; color: #fff; }
+
+a.tag[href^="#signal/"]   { background: #7c3aed; color: #fff; }
+a.tag[href^="#pattern/"]  { background: #0ea5e9; color: #fff; }
+a.tag[href^="#plan"]      { background: #14b8a6; color: #fff; }
+a.tag[href^="#daily"]     { background: #475569; color: #fff; }
+a.tag[href^="#weekly-review"]    { background: #475569; color: #fff; }
+a.tag[href^="#monthly-review"]   { background: #475569; color: #fff; }
+a.tag[href^="#quarterly-review"] { background: #475569; color: #fff; }
+a.tag[href^="#moc"]       { background: #1f2937; color: #f3f4f6; }
+a.tag[href^="#behavioral"] { background: #be185d; color: #fff; }
+a.tag[href^="#book"]      { background: #7c2d12; color: #fff; }
+a.tag[href^="#algorithm"] { background: #0ea5e9; color: #fff; }
+
+a.tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+/* Checkbox progreso visible en lista de hitos */
+ul.contains-task-list li.task-list-item input[type="checkbox"]:checked + * {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  opacity: 0.65;
+}
+
+/* Title de la nota más sutil (Things lo hace gigante por defecto) */
+.inline-title {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* Sidebar file explorer: monoespaciado de prefijos numerados */
+.nav-file-title-content,
+.nav-folder-title-content {
+  font-feature-settings: "tnum";
+}
+
+/* Graph view dark + accent del vault */
+.graph-view.color-circle { color: var(--interactive-accent); }
+
+/* Source mode: línea de cursor más visible */
+.cm-active.cm-line {
+  background: rgba(124, 58, 237, 0.07);
+}
+
+/* Callouts: bordes finos en lugar de macizos */
+.callout {
+  border-left-width: 3px;
+  border-radius: 6px;
+}
+
+/* Backlinks: que se vean, no que dominen */
+.backlink-pane .tree-item-self {
+  font-size: 0.92em;
+}
+
+/* Hide los "Recent files" del file explorer si los ves ruido.
+   Desactiva esto si los usas. */
+/* .workspace-leaf-content[data-type="recent-files"] { display: none; } */

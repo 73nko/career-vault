@@ -1,0 +1,59 @@
+{
+  "command_timeout": 5,
+  "templates_folder": "99_Templates",
+  "templates_pairs": [
+    [
+      "",
+      ""
+    ]
+  ],
+  "trigger_on_file_creation": true,
+  "auto_jump_to_cursor": true,
+  "enable_system_commands": false,
+  "shell_path": "",
+  "user_scripts_folder": "99_Templates",
+  "enable_folder_templates": true,
+  "folder_templates": [
+    {
+      "folder": "02_Daily",
+      "template": "99_Templates/Daily.md"
+    },
+    {
+      "folder": "03_Concepts",
+      "template": "99_Templates/Concept.md"
+    },
+    {
+      "folder": "05_Books",
+      "template": "99_Templates/Book.md"
+    },
+    {
+      "folder": "06_Interviews/Behavioral",
+      "template": "99_Templates/STAR_Story.md"
+    },
+    {
+      "folder": "06_Interviews/Companies",
+      "template": "99_Templates/Company_Research.md"
+    }
+  ],
+  "enable_file_templates": false,
+  "file_templates": [
+    {
+      "regex": ".*",
+      "template": ""
+    }
+  ],
+  "syntax_highlighting": true,
+  "syntax_highlighting_mobile": true,
+  "enabled_templates_hotkeys": [
+    ""
+  ],
+  "startup_templates": [
+    ""
+  ],
+  "intellisense_render": 1,
+  "ignore_folders_on_creation": [
+    {
+      "folder": "99_Templates"
+    }
+  ]
+}

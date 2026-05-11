@@ -1,0 +1,36 @@
+# Obsidian: estado local de la UI, no compartir entre máquinas
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.obsidian/graph.json
+.obsidian/hotkeys.json
+
+# Plugin data sensible / local
+.obsidian/plugins/obsidian-git/data.json
+
+# Archivos del sistema
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs y temporales
+*.log
+.tmp/
+tmp/
+
+# Trash de Obsidian
+.trash/
+
+# Secrets (por si acaso aparece algo)
+*.env
+.env.*
+secrets/
