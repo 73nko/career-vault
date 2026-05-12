@@ -54,7 +54,7 @@ Semanas 10-12 caen en mediados/finales de julio. Si tienes vacaciones, **recorta
 - [ ] 1 nota atómica: [[Generics]]
 - [ ] 1 nota atómica: [[Conditional Types]]
 - [ ] 3 notas de algoritmos resueltos
-- [ ] Repo público creado con build setup funcional
+- [x] Repo público creado con build setup funcional ([track-vitals](https://github.com/73nko/track-vitals), 2026-05-11)
 - [ ] [[ADR-001-Monorepo-Structure]]
 
 ---

@@ -1,8 +1,9 @@
 # Project: Web Vitals SDK + Pipeline
 
-#project #status/draft
+#project #status/active
 
-**Nombre tentativo:** (decidir Q1)
+**Nombre:** track-vitals
+**Repo:** https://github.com/73nko/track-vitals
 **Tipo:** Open Source
 **Inspiración:** Sentry Performance, Datadog RUM, Grafana Faro, Plausible
 
@@ -66,9 +67,9 @@ No estoy construyendo Sentry. Estoy construyendo algo enfocado que demuestre:
 ## Decisiones arquitecturales (ADRs)
 
 A medida que vaya tomando decisiones, crear ADR en `04_Project/Decisions/`:
-- [[ADR-001-Storage-Choice]]
-- [[ADR-002-SDK-API-Surface]]
-- [[ADR-003-Ingestion-Endpoint-Design]]
+- [[ADR-001-Monorepo-Structure]] (semana 1)
+- [[ADR-002-SDK-Public-API]] (semana 2)
+- [[ADR-003-Storage-Choice-Postgres-Temporary]] (semana 10)
 
 ## Métricas de éxito del proyecto
 

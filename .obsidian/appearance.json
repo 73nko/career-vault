@@ -11,7 +11,6 @@
   "baseFontSize": 16,
   "baseFontSizeAction": true,
   "showViewHeader": true,
-  "showInlineTitle": true,
   "translucency": false,
   "nativeMenus": false
 }

@@ -6,6 +6,10 @@ Punto de entrada al área Algoritmos del vault. Aquí van patrones y los problem
 
 ## Patrones (foco en estos)
 
+### Ordenación / Sorting
+- [[ Merge Sort]]
+- [[Quick Sort]]
+
 ### Arrays / Strings
 - [[Two Pointers Pattern]]
 - [[Sliding Window Pattern]]
