@@ -1,9 +1,9 @@
 # Is Anagram
 
-#algorithm #status/draft
+#algorithm #status/accepted
 
-**Pattern:** #pattern/
-**Difficulty:** #difficulty/
+**Pattern:** #pattern/hash-map
+**Difficulty:** #difficulty/easy
 **Source:** NeetCode 150 / LeetCode #
 **Fecha:** 2026-05-14
 
