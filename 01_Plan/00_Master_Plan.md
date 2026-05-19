@@ -81,6 +81,10 @@ Pero requiere disciplina sostenida. La trampa del plan de 12 meses es procrastin
 - Inflar el proyecto en lugar de terminarlo.
 - Aplicar a empresas antes de estar listo, malgastar oportunidades.
 
+## Fuentes externas (no bloques de tiempo, solo bancos de problemas)
+
+- [[00_MOC_FE_Practice]] — repo del curso FE Interview v2 como problem bank curado (12 problemas) para slots ya presupuestados. **No ver vídeos.**
+
 ## Links
 
 - [[Q1_Plan]]
@@ -88,3 +92,4 @@ Pero requiere disciplina sostenida. La trampa del plan de 12 meses es procrastin
 - [[Q3_Plan]]
 - [[Q4_Plan]]
 - [[04_Project/00_Project_Overview]]
+- [[00_MOC_FE_Practice]]

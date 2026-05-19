@@ -66,6 +66,7 @@ Semanas 10-12 caen en mediados/finales de julio. Si tienes vacaciones, **recorta
 ### Tareas
 
 - **TS (2.5h):** `infer`, template literal types, branded types, discriminated unions
+    - Practica con type-challenges del repo FE Interview v2 (Section 3) en lugar de solo leer. Ver [[00_MOC_FE_Practice]]
 - **Algoritmos (2h):** 3 problemas Two Pointers + Sliding Window
     - Valid Palindrome, Best Time to Buy/Sell Stock, Longest Substring Without Repeating Characters
 - **Proyecto (2h):** Diseño de la API pública del SDK

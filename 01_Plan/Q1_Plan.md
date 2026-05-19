@@ -76,11 +76,23 @@
 - [ ] Repositorio público con README serio
 - [ ] Primera Monthly Review trimestral honesta
 
+## Banco FE Interview Practice (fuente, no bloque)
+
+A partir de W21 se introduce el [repo de Frontend Interview v2](https://github.com/EvgeniiRay/preparing-for-ui-interview-v2) como **fuente** para llenar slots ya presupuestados, no como horas extra:
+
+- **TS challenges (Section 3)** → reemplazan parte de la lectura Matt Pocock en W21 (active rep sobre doc).
+- **Classic JS (debounce/throttle/deep equals/Promise)** → 1 problema/semana ocupa uno de los dos slots de algoritmo a partir de W22. El otro sigue siendo NeetCode para cobertura DSA.
+- **UI Components** → entran en Q2 (Mes 5-8), uno por semana, sustituyendo demos React genéricas.
+- **Extreme problems** → vehículo de Frontend System Design en Q3.
+
+Curaduría y reglas en [[00_MOC_FE_Practice]]. **No ver vídeos** del curso; el valor está en los problemas.
+
 ## Riesgos identificados en Q1
 
 - **Subestimar el TS profundo.** Cinco años de TS no implican TS avanzado. Si paso por encima, lo lamento en Q3.
 - **Overengineering el SDK.** Tentación de meter mil features. NO. Solo CWV en Q1.
 - **Algoritmos como excusa para no proyecto.** Si los algoritmos comen demasiado, los recorto, no recorto el proyecto.
+- **El curso FE como nueva forma de "leer sobre".** Si veo vídeos en lugar de resolver problemas, vuelvo al anti-patrón. La regla es: resolver primero, vídeo solo si bloqueado.
 
 ## Conceptos a dominar (notas atómicas a crear)
 
