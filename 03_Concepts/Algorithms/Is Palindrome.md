@@ -2,7 +2,7 @@
 
 #algorithm #status/accepted
 
-**Pattern:** #pattern/
+**Pattern:** #pattern/two-pointers
 **Difficulty:** #difficulty/easy
 **Source:** NeetCode 150 / LeetCode #
 **Fecha:** 2026-05-19
