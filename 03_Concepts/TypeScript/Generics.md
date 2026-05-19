@@ -1,6 +1,6 @@
 # Generics
 
-#concept #status/draft
+#concept #status/done
 
 ## Definición
 

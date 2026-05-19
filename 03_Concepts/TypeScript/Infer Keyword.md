@@ -1,6 +1,6 @@
 # Infer Keyword
 
-#concept #status/draft
+#concept #status/done
 
 ## Definición
 

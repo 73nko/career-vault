@@ -1,6 +1,6 @@
 # Conditional Types
 
-#concept #status/draft
+#concept #status/done
 
 ## Definición
 
