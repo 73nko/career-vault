@@ -23,15 +23,26 @@ Sin `infer` no hay forma de **extraer** tipos de estructuras existentes sin volv
 
 ## Cómo funciona
 
-**Reglas:**
+### 1. Sintaxis y posición
 
-1. `infer` **solo** aparece dentro de la cláusula `extends` de un conditional type. Fuera de ahí es error de sintaxis.
-2. TypeScript intenta unificar el tipo de entrada con el patrón. Si encaja, la variable inferida queda disponible en la rama `true`.
-3. Si no encaja, se evalúa la rama `false` (donde la variable inferida ya no existe).
-4. **Múltiples `infer X` en la misma posición** producen una unión (`X = A | B`).
-5. **Múltiples `infer X` en posiciones contravariantes** (parámetros de función) producen una intersección (`X = A & B`).
-6. Sobre uniones, el conditional **se distribuye** sobre cada miembro. Para desactivar la distribución envuelve el tipo en una tupla: `[T] extends [U] ? ... : ...`.
-7. **Desde TS 4.7:** `infer X extends Y` añade una constraint al tipo inferido, lo que estrecha el resultado y mejora los errores.
+`infer` **solo** aparece dentro de la cláusula `extends` de un conditional type. Fuera de ahí es error de sintaxis.
+
+### 2. Unificación
+
+TypeScript intenta unificar el tipo de entrada con el patrón. Si encaja, la variable inferida queda disponible en la rama `true`. Si no encaja, se evalúa la rama `false` (donde la variable inferida ya no existe).
+
+### 3. Múltiples `infer` en posiciones múltiples
+
+- En la **misma posición** producen una unión (`X = A | B`).
+- En **posiciones contravariantes** (parámetros de función) producen una intersección (`X = A & B`).
+
+### 4. Distributividad sobre uniones
+
+Sobre uniones, el conditional **se distribuye** sobre cada miembro. Para desactivar la distribución envuelve el tipo en una tupla: `[T] extends [U] ? ... : ...`.
+
+### 5. Constraints (TS 4.7+)
+
+`infer X extends Y` añade una constraint al tipo inferido, lo que estrecha el resultado y mejora los errores.
 
 ## Ejemplo
 

@@ -22,11 +22,13 @@ NO lo uso cuando:
 
 ## Cómo funciona
 
-Cuatro piezas:
+### 1. Forma básica
 
-**1. Forma básica.** `T extends U ? X : Y` se evalúa cuando `T` se conoce concretamente. Mientras `T` sea un parámetro genérico no resuelto, la evaluación queda diferida.
+`T extends U ? X : Y` se evalúa cuando `T` se conoce concretamente. Mientras `T` sea un parámetro genérico no resuelto, la evaluación queda diferida.
 
-**2. Distributividad.** Si `T` es un parámetro de tipo "naked" (aparece directamente, sin envoltorios), el conditional type distribuye sobre uniones:
+### 2. Distributividad
+
+Si `T` es un parámetro de tipo "naked" (aparece directamente, sin envoltorios), el conditional type distribuye sobre uniones:
 
 ```typescript
 type ToArray<T> = T extends any ? T[] : never;
@@ -40,9 +42,17 @@ type ToArrayNoDist<T> = [T] extends [any] ? T[] : never;
 type R2 = ToArrayNoDist<string | number>; // (string | number)[]
 ```
 
-**3. `infer`.** Dentro de la rama `extends`, `infer` declara una variable de tipo cuyo valor TS deduce por unificación. Es la herramienta que permite "extraer" tipos.
+### 3. `infer`
 
-**4. Recursividad.** Un conditional type puede referirse a sí mismo en sus ramas. Tiene un límite de profundidad alto pero finito; pasarlo es un error de compilación.
+Dentro de la rama `extends`, `infer` declara una variable de tipo cuyo valor TS deduce por unificación. Es la herramienta que permite "extraer" tipos. Ver [[Infer Keyword]] para el detalle.
+
+### 4. Recursividad
+
+Un conditional type puede referirse a sí mismo en sus ramas. Hay un límite de profundidad (50 niveles por defecto) que sube a ~1000 con la **tail recursion optimization** introducida en TS 4.5. Solo se optimiza si la llamada recursiva está en posición de cola: el último paso de la rama, sin transformación adicional encima. Patrón común al parsear template literals largas.
+
+### 5. Asignabilidad estructural, no igualdad
+
+`T extends U` no comprueba "T es igual a U", comprueba "T es asignable a U" siguiendo las reglas estructurales de TS. `{ a: string; b: number }` extends `{ a: string }` es `true` (la primera satisface el contrato de la segunda). Al revés es `false`. Esto pilla a gente en entrevistas que esperan igualdad y reciben asignabilidad. Para igualdad estricta hace falta el truco de `Equal<X, Y>` (ver ejemplos).
 
 ## Ejemplo
 
@@ -74,6 +84,21 @@ type NotRed = MyExclude<Color, "red">; // "blue" | "green"
 ```
 
 Funciona porque `T` es naked: la evaluación se hace miembro a miembro de la unión. Si envolvieras `T` en tupla (`[T] extends [U]`), `Exclude` dejaría de funcionar.
+
+`Equal<X, Y>` (igualdad estricta), patrón que aparece en type-challenges y en librerías que necesitan diferenciar tipos estructuralmente compatibles pero no idénticos:
+
+```typescript
+type Equal<X, Y> =
+  (<T>() => T extends X ? 1 : 2) extends
+  (<T>() => T extends Y ? 1 : 2) ? true : false;
+
+type E1 = Equal<string, string>;                  // true
+type E2 = Equal<string, "hello">;                 // false
+type E3 = Equal<{ a: 1 }, { a: 1; b?: never }>;   // false (estructura distinta)
+type E4 = Equal<any, unknown>;                    // false (que extends sí daría true)
+```
+
+El truco: comparar dos funciones genéricas idénticas excepto en `X`/`Y`. TS solo las considera mutuamente asignables si los tipos son estructuralmente equivalentes en TODAS las posiciones del cuerpo. Es el único patrón en TS puro que da igualdad real en lugar de asignabilidad.
 
 Un caso menos académico, sacado del estilo de tRPC o Drizzle. La firma se adapta al input:
 
@@ -113,6 +138,9 @@ const one = query(users, { single: true }); // User | undefined
 - ¿Cómo desactivo la distributividad? Envolviendo en tupla: `[T] extends [U]`. La razón es que el comportamiento distributivo solo aplica a parámetros "naked".
 - Implementa `Awaited<T>` y explica por qué necesita ser recursivo. Porque `Promise<Promise<T>>` ocurre cuando devuelves una Promise dentro de un `then`, o haces `Promise.resolve(otherPromise)`. La recursión desempaqueta hasta llegar a un no-Promise.
 - Diferencia entre `T extends U` dentro de un conditional type vs `T extends U` como constraint de un generic. El primero es una pregunta evaluable. El segundo es una restricción que el call site debe satisfacer.
+- ¿Por qué `T extends U` y `U extends T` ambos `true` no implican `T = U`? Porque `extends` es asignabilidad estructural, no igualdad. `any` extends `unknown` y `unknown` extends `any`, pero son tipos distintos. Para igualdad real hace falta el patrón `Equal<X, Y>` con comparación de funciones genéricas.
+- ¿Qué pasa con `T extends any ? T[] : never` cuando `T = never`? Devuelve `never`, no `never[]`. Porque `never` es la unión vacía y los conditional types distributivos se aplican miembro a miembro: cero miembros, cero resultados, `never`. Es fuente común de bugs en utility types donde un input vacío silenciosamente desaparece.
+- ¿Cuándo conviene usar `T extends unknown` en lugar de `T extends any` para forzar distribución? Funcionalmente son equivalentes en este uso. `T extends unknown` es más explícito sobre la intención ("acepto cualquier tipo") y no introduce `any` en el código, lo que ayuda en linters estrictos y revisiones.
 
 ## Fuente
 

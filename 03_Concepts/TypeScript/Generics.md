@@ -23,17 +23,43 @@ NO lo uso cuando:
 
 ## Cómo funciona
 
-Cuatro mecanismos esenciales:
+### 1. Parámetro de tipo básico
 
-**1. Parámetro de tipo básico.** `<T>` introduce un tipo libre que TS infiere desde los argumentos, o se pasa explícitamente en el call site.
+`<T>` introduce un tipo libre que TS infiere desde los argumentos, o se pasa explícitamente en el call site.
 
-**2. Constraints.** `<T extends U>` restringe qué tipos puede tomar `T`. Sin constraint, dentro del cuerpo de la función `T` se trata como `unknown`: no puedes acceder a propiedades sin haberlas declarado.
+### 2. Constraints
 
-**3. Default.** `<T = U>` da un fallback cuando ni la inferencia ni el call site fijan `T`. Útil en tipos públicos de librerías.
+`<T extends U>` restringe qué tipos puede tomar `T`. Sin constraint, dentro del cuerpo de la función `T` se trata como `unknown`: no puedes acceder a propiedades sin haberlas declarado.
 
-**4. Múltiples parámetros con relaciones.** `<T, K extends keyof T>` permite que un parámetro restrinja a otro. Este patrón es el corazón de utility types como `Pick` y de APIs tipo Drizzle.
+### 3. Default
 
-Sobre inferencia: TS infiere `T` desde el argumento pasado. Si el parámetro de tipo solo aparece en el retorno (no en los argumentos), la inferencia falla y hay que pasarlo explícito: `fn<MyType>(...)`.
+`<T = U>` da un fallback cuando ni la inferencia ni el call site fijan `T`. Útil en tipos públicos de librerías.
+
+### 4. Múltiples parámetros con relaciones
+
+`<T, K extends keyof T>` permite que un parámetro restrinja a otro. Este patrón es el corazón de utility types como `Pick` y de APIs tipo Drizzle.
+
+### 5. Modificadores modernos (TS 5.x)
+
+- `<const T>` (TS 5.0+): preserva tipos literales en la inferencia, sin que el consumidor tenga que poner `as const` en el call site.
+- `NoInfer<T>` (TS 5.4+): inhibe la inferencia desde una posición concreta. Útil cuando un mismo parámetro de tipo aparece en varias posiciones y solo quieres que infiera desde una.
+
+```typescript
+// const modifier: la API decide preservar literales.
+function literal<const T>(value: T): T { return value; }
+const x = literal({ kind: "dog" });
+// x: { readonly kind: "dog" }, no { kind: string }
+
+// NoInfer: decidir desde qué posición se infiere T.
+function clamp<T extends number>(value: T, min: NoInfer<T>, max: NoInfer<T>): T {
+  return value;
+}
+clamp(5 as 5, 0, 10); // T se infiere a 5, no a 0 | 5 | 10
+```
+
+### 6. Inferencia y posición
+
+TS infiere `T` desde el argumento pasado. Si el parámetro de tipo solo aparece en el retorno (no en los argumentos), la inferencia falla y hay que pasarlo explícito: `fn<MyType>(...)`.
 
 ## Ejemplo
 
@@ -108,6 +134,9 @@ pick(user, ["id", "phone"]);  // Error: "phone" no es keyof user
 - ¿Para qué sirve el constraint `<T extends U>`? Para poder usar propiedades de `U` dentro del cuerpo. Sin constraint, `T` se trata como `unknown`.
 - ¿Qué problema tiene `<T extends any>`? Mezcla dos cosas distintas: `any` desactiva el chequeo de tipos. Si quieres "cualquier tipo" usa `<T>` sin constraint, o `<T extends unknown>` cuando necesitas el efecto distributivo en conditional types.
 - ¿Cuándo eliges generic vs unión de literales? Generic si hay relación entre input y output. Unión literal si los casos son fijos y enumerables.
+- ¿Por qué `(x: Dog) => void` no es asignable a `(x: Animal) => void` pero sí al revés? Variance: los parámetros son contravariantes, los retornos covariantes. Esto importa cuando un generic aparece en posición de parámetro vs retorno: TS decide la varianza por posición y a veces la inferencia se siente "rara" por eso.
+- ¿Para qué sirve `<const T>` y qué problema resuelve frente a pedirle al usuario que escriba `as const`? Para que la API decida preservar literales sin trasladar esa carga al consumidor. Patrón común en librerías tipo Zod o tRPC donde quieres inferir el shape literal del argumento.
+- ¿TypeScript soporta higher-kinded types (HKT)? No de forma nativa. Esto limita patrones tipo functor/monad genéricos sobre constructores de tipos. Existen workarounds (fp-ts, hkt-toolbelt) pero son trucos con interfaces y lookup, no soporte real del lenguaje.
 
 ## Fuente
 
