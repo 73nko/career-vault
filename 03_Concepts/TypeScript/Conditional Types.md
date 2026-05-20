@@ -133,14 +133,27 @@ const one = query(users, { single: true }); // User | undefined
 
 ## Preguntas que respondería en entrevista
 
-- Implementa `ReturnType<T>` desde cero. Pista: necesitas `infer` y un constraint sobre `T` para que solo acepte funciones.
-- ¿Qué es la distributividad en conditional types y cuándo me beneficia? Cuando quiero aplicar una transformación a cada miembro de una unión por separado. `Exclude` y `NonNullable` dependen de ella.
-- ¿Cómo desactivo la distributividad? Envolviendo en tupla: `[T] extends [U]`. La razón es que el comportamiento distributivo solo aplica a parámetros "naked".
-- Implementa `Awaited<T>` y explica por qué necesita ser recursivo. Porque `Promise<Promise<T>>` ocurre cuando devuelves una Promise dentro de un `then`, o haces `Promise.resolve(otherPromise)`. La recursión desempaqueta hasta llegar a un no-Promise.
-- Diferencia entre `T extends U` dentro de un conditional type vs `T extends U` como constraint de un generic. El primero es una pregunta evaluable. El segundo es una restricción que el call site debe satisfacer.
-- ¿Por qué `T extends U` y `U extends T` ambos `true` no implican `T = U`? Porque `extends` es asignabilidad estructural, no igualdad. `any` extends `unknown` y `unknown` extends `any`, pero son tipos distintos. Para igualdad real hace falta el patrón `Equal<X, Y>` con comparación de funciones genéricas.
-- ¿Qué pasa con `T extends any ? T[] : never` cuando `T = never`? Devuelve `never`, no `never[]`. Porque `never` es la unión vacía y los conditional types distributivos se aplican miembro a miembro: cero miembros, cero resultados, `never`. Es fuente común de bugs en utility types donde un input vacío silenciosamente desaparece.
-- ¿Cuándo conviene usar `T extends unknown` en lugar de `T extends any` para forzar distribución? Funcionalmente son equivalentes en este uso. `T extends unknown` es más explícito sobre la intención ("acepto cualquier tipo") y no introduce `any` en el código, lo que ayuda en linters estrictos y revisiones.
+- **Implementa `ReturnType<T>` desde cero.** Respuesta:
+  ```typescript
+  type MyReturnType<T extends (...args: any[]) => any> =
+    T extends (...args: any[]) => infer R ? R : never;
+  ```
+  Tres piezas críticas: **(1)** constraint `T extends (...args: any[]) => any` para que TS rechace no-funciones en compile time. **(2)** `infer R` en posición del retorno para capturar el tipo. **(3)** rama `false` con `never` aunque sea inalcanzable bajo el constraint (TS la exige sintácticamente). Si quitas el constraint, pasar un `string` devuelve `never` silenciosamente.
+- **¿Qué es la distributividad en conditional types y cuándo me beneficia?** Respuesta: cuando `T` es un **parámetro "naked"** (aparece sin envoltorios en la cláusula `extends`), el conditional se aplica **miembro a miembro** sobre cada elemento de una unión, y los resultados se unen. Me beneficia cuando quiero **aplicar una transformación a cada miembro por separado**: `Exclude<T, U>` filtra miembros de una unión, `NonNullable<T>` elimina `null` y `undefined`, `ToArray<T>` envuelve cada miembro en `T[]`. Sin distributividad, estos utility types no funcionarían.
+- **¿Cómo desactivo la distributividad?** Respuesta: envolviendo el parámetro en una **tupla**: `[T] extends [U] ? ... : ...`. La razón es que el comportamiento distributivo solo aplica a parámetros **naked**. Al envolver `T` en `[T]`, TS evalúa el conditional con la unión completa como un solo tipo. Cuándo querer desactivar: cuando comparas dos uniones como conjuntos (`[A] extends [B]` pregunta "¿A es subconjunto de B?"), o cuando el resultado debe depender del tipo completo, no de sus miembros individuales.
+- **Implementa `Awaited<T>` y explica por qué necesita ser recursivo.** Respuesta:
+  ```typescript
+  type MyAwaited<T> = T extends Promise<infer U>
+    ? U extends Promise<unknown>
+      ? MyAwaited<U>
+      : U
+    : T;
+  ```
+  Necesita recursión porque `Promise<Promise<T>>` aparece en código real cuando devuelves una `Promise` dentro de un `.then`, o haces `Promise.resolve(otherPromise)`. Sin la llamada recursiva te quedarías con `Promise<T>` después de un solo unwrap. La recursión desempaqueta hasta llegar a un no-Promise. Bonus: la llamada está en posición de cola, así que TS 4.5+ la optimiza y permite profundidad alta sin estallar.
+- **Diferencia entre `T extends U` dentro de un conditional type vs `T extends U` como constraint de un generic.** Respuesta: el primero es una **pregunta evaluable** en tiempo de chequeo: "¿es T asignable a U? Si sí, da X; si no, da Y". El segundo es una **restricción** que el call site debe satisfacer: si pasas un `T` que no extiende `U`, no compila. Mismo operador, dos semánticas. Truco mnemónico: dentro del cuerpo de un tipo, `extends` es `if`; en la firma genérica, `extends` es `requires`.
+- **¿Por qué `T extends U` y `U extends T` ambos `true` no implican `T = U`?** Respuesta: porque `extends` es **asignabilidad estructural**, no igualdad. `any` extends `unknown` y `unknown` extends `any`, pero son tipos distintos (el primero desactiva chequeo, el segundo requiere narrowing). Otro ejemplo: `{ a: 1 }` extends `{ a: 1; b?: never }` y viceversa, pero la presencia opcional de `b` los diferencia estructuralmente. Para igualdad real necesitas el patrón `Equal<X, Y>` que compara funciones genéricas idénticas excepto en `X`/`Y`. Es el único truco en TS puro que da igualdad estricta en lugar de asignabilidad.
+- **¿Qué pasa con `T extends any ? T[] : never` cuando `T = never`?** Respuesta: devuelve `never`, **no `never[]`**. Porque `never` es la **unión vacía** y los conditional types distributivos se aplican miembro a miembro: cero miembros en la unión, cero resultados, `never`. Es fuente común de bugs en utility types donde un input vacío silenciosamente desaparece y no te enteras hasta que algo en runtime falla. Si quieres evitar la distribución sobre `never`, envuelve en tupla: `[T] extends [any] ? T[] : never` devuelve `never[]` cuando `T = never`.
+- **¿Cuándo conviene usar `T extends unknown` en lugar de `T extends any` para forzar distribución?** Respuesta: **funcionalmente son equivalentes** en este uso (ambos hacen la condición trivialmente cierta y distribuyen). La diferencia es **ergonómica**: `T extends unknown` es más explícito sobre la intención ("acepto cualquier tipo, quiero distribuir") y **no introduce `any` en el código**, lo que ayuda en code reviews y con linters estrictos (typescript-eslint con `no-explicit-any` no se queja). En código de librería público, prefiero `unknown` por esa señal de intención.
 
 ## Fuente
 

@@ -103,11 +103,22 @@ type Good = WithPrefix<"user">; // "prefix_user"
 
 ## Preguntas que respondería en entrevista
 
-- ¿Cuántas posibilidades genera `` `${A}-${B}` `` si `A` tiene 4 miembros y `B` tiene 3? ¿Por qué TypeScript impone un límite a esta multiplicación?
-- ¿Cómo extraerías los parámetros de una ruta como `"/users/:id/posts/:postId"` solo a nivel de tipo, sin código en runtime?
-- ¿Qué hace `Capitalize<T>` por debajo? ¿Por qué los 4 utility types de transformación de texto son intrínsecos al compilador y no se pueden replicar en TS puro?
-- Dado `` type T = "foo" extends `f${infer X}` ? X : never ``, ¿qué es `T`? ¿Y si fuera `"foobar"`?
-- ¿Por qué un template literal type sigue siendo solo compile-time? ¿Cuándo conviene complementarlo con validación runtime (Zod) y por qué?
+- **¿Cuántas posibilidades genera `` `${A}-${B}` `` si `A` tiene 4 miembros y `B` tiene 3? ¿Por qué TypeScript impone un límite?** Respuesta: **12** (producto cartesiano, 4 × 3). TS impone un límite (~100.000 miembros de unión por defecto) porque cada tipo añadido consume memoria y tiempo en el compilador, y porque las uniones masivas hacen los mensajes de error inmanejables. Pasarlo lanza `"Expression produces a union type that is too complex to represent"`. El motivo es práctico, no teórico: el algoritmo de tipos seguiría siendo correcto, pero el compilador se vuelve insoportablemente lento.
+- **¿Cómo extraerías los parámetros de una ruta como `"/users/:id/posts/:postId"` solo a nivel de tipo, sin código en runtime?** Respuesta:
+  ```typescript
+  type ExtractParams<Route extends string> =
+    Route extends `${string}:${infer Param}/${infer Rest}`
+      ? Param | ExtractParams<`/${Rest}`>
+      : Route extends `${string}:${infer Param}`
+        ? Param
+        : never;
+
+  type P = ExtractParams<"/users/:id/posts/:postId">; // "id" | "postId"
+  ```
+  Combinación de template literal type + `infer` + recursión en posición de cola. Es exactamente el patrón detrás de las rutas tipo-seguras en Hono, tRPC y Next.js typed routes.
+- **¿Qué hace `Capitalize<T>` por debajo? ¿Por qué los 4 utility types son intrínsecos al compilador?** Respuesta: `Capitalize<T>` toma el primer carácter del string literal y lo pone en mayúscula, dejando el resto intacto. Son **intrínsecos** porque el sistema de tipos de TS no expone primitivas para operar sobre caracteres individuales de un string: no hay `CharAt<S, N>`, no hay `ToUpperCase<C>` para un solo char, no hay iteración carácter a carácter. La transformación tiene que estar implementada en C++/JS dentro del compilador, no en TypeScript puro. Los otros tres (`Uppercase`, `Lowercase`, `Uncapitalize`) tienen la misma razón. Es lo que diferencia "limitación arbitraria" de "decisión deliberada del lenguaje".
+- **Dado `` type T = "foo" extends `f${infer X}` ? X : never ``, ¿qué es `T`?** Respuesta: `T = "oo"`. TS unifica `"foo"` con el patrón `` `f${something}` ``, y `X` captura todo lo que sigue a la `f` literal, que es `"oo"`. Si fuera `"foobar"`, `T = "oobar"`. La regla: cuando `infer` aparece en una posición no delimitada por más texto, hace **greedy match** hasta el final del string. Si el patrón fuera `` `f${infer X}b${infer Y}` `` aplicado a `"foobar"`, entonces `X = "oo"`, `Y = "ar"` (matching delimitado).
+- **¿Por qué un template literal type sigue siendo solo compile-time? ¿Cuándo conviene complementarlo con validación runtime (Zod)?** Respuesta: porque TS aplica **type erasure**: en runtime los tipos no existen, solo queda JS plano. Un template literal type **no puede** validar un string que entra de fuera (API, formulario, env var, query param). Para eso necesitas validación runtime: Zod, Yup, Valibot, ArkType. Regla práctica: **template literal types para datos internos a la app** (rutas hardcoded, mapas de eventos tipados, claves de objetos derivadas), **Zod (o equivalente) para fronteras de runtime** (input de usuario, network, DB, env). En SDKs públicos serios, usas ambos: el tipo a nivel de TS para el contrato compile-time + un parser Zod cuyo `z.infer<typeof schema>` produce ese mismo tipo. Single source of truth: el schema.
 
 ## Fuente
 

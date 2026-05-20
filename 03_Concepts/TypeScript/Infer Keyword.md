@@ -118,11 +118,23 @@ type Segments = ParseRoute<"/users/:id/posts/:postId">;
 
 ## Preguntas que respondería en entrevista
 
-- ¿Cómo extraerías el tipo de retorno de una función pasada como genérico sin usar `ReturnType`?
-- ¿Qué pasa si declaro `infer U` dos veces dentro del mismo conditional, una en posición de parámetro y otra en posición de retorno? ¿Por qué?
-- ¿Por qué `T extends any ? ... : ...` se distribuye sobre uniones, y cómo lo desactivo?
-- Implementa `Awaited<T>` a mano usando `infer`, soportando promesas anidadas.
-- ¿Qué aporta `infer X extends Y` frente a `infer X` y un check posterior?
+- **¿Cómo extraerías el tipo de retorno de una función pasada como genérico sin usar `ReturnType`?** Respuesta:
+  ```typescript
+  type MyReturn<T> = T extends (...args: any[]) => infer R ? R : never;
+  ```
+  La clave es el `infer R` en la posición del retorno. Si quieres rechazar no-funciones en compile time, añade el constraint: `T extends (...args: any[]) => any`. Sin el constraint, pasarle `string` simplemente devuelve `never`; con él, ya no compila.
+- **¿Qué pasa si declaro `infer U` dos veces dentro del mismo conditional, una en posición de parámetro y otra en posición de retorno?** Respuesta: depende de la **varianza** de la posición. En posiciones **covariantes** (como dos retornos), TS toma la **unión**: `U = A | B`. En posiciones **contravariantes** (parámetros de función), TS toma la **intersección**: `U = A & B`. La razón es semántica: en covariante, "cualquiera de los dos" satisface; en contravariante, debe satisfacer "ambos". Por eso `ParamUnion<{ a: (x: string) => void; b: (x: number) => void }>` da `string & number` = `never`, no `string | number`.
+- **¿Por qué `T extends any ? ... : ...` se distribuye sobre uniones, y cómo lo desactivo?** Respuesta: se distribuye porque cuando `T` es un parámetro de tipo **naked** (no envuelto en otra estructura), TS aplica el conditional **miembro a miembro** de la unión y reúne los resultados. Para desactivar, envuelves en tupla: `[T] extends [any] ? ... : ...`. La tupla fuerza a TS a evaluar el conditional con la unión completa como un solo tipo, no miembro a miembro. Esto importa cuando quieres comparar dos uniones como conjuntos (`[A] extends [B]`) en lugar de aplicar una transformación a cada miembro.
+- **Implementa `Awaited<T>` a mano usando `infer`, soportando promesas anidadas.** Respuesta:
+  ```typescript
+  type MyAwaited<T> = T extends Promise<infer U>
+    ? U extends Promise<unknown>
+      ? MyAwaited<U>
+      : U
+    : T;
+  ```
+  Recursión: si el inner `U` es a su vez una Promise, llamada recursiva; si no, return `U`. Si `T` no era Promise para empezar, return `T`. La llamada recursiva está en **posición de cola**, así que TS 4.5+ la optimiza y permite anidamiento profundo sin estallar el límite de recursividad.
+- **¿Qué aporta `infer X extends Y` frente a `infer X` y un check posterior?** Respuesta: `infer X extends Y` (TS 4.7+) **estrecha el tipo inferido en el momento del matching**, no después. Sin el constraint, `X` sería el tipo amplio y un check posterior dentro de la rama `true` te daría errores crípticos si no matchea, o un cast forzado. Con `infer X extends Y`: si `X` no satisface `Y`, el conditional cae a la rama `false` directamente, y en la rama `true` queda tipado como `Y` sin más narrowing. Mejor tipo, mejores errores, menos branching anidado. Ejemplo: `[infer Head extends number, ...unknown[]]` rechaza tuplas cuyo primer elemento no sea numérico, sin necesidad de un segundo conditional dentro.
 
 ## Fuente
 
