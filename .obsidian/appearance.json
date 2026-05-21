@@ -1,16 +1,16 @@
 {
-  "accentColor": "#7c3aed",
+  "accentColor": "#b39dff",
   "theme": "obsidian",
-  "cssTheme": "Things",
+  "cssTheme": "Violet Hour",
   "enabledCssSnippets": [
     "custom"
   ],
   "interfaceFontFamily": "Inter",
   "textFontFamily": "Inter",
-  "monospaceFontFamily": "JetBrains Mono",
+  "monospaceFontFamily": "Monaspace Neon",
   "baseFontSize": 16,
   "baseFontSizeAction": true,
   "showViewHeader": true,
-  "translucency": false,
+  "translucency": true,
   "nativeMenus": false
 }

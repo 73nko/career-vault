@@ -19,9 +19,11 @@
 - 
 
 ## Métricas
-- Horas reales: 
-- Energía (1-5): 
-- Foco (1-5): 
+- Horas reales: no registrado
+- Energía (1-5): no registrado
+- Foco (1-5): no registrado
+
+No dejar métricas vacías: si no se midió, escribir `no registrado`.
 
 ## Mañana
 - 

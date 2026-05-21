@@ -25,6 +25,8 @@ Pero requiere disciplina sostenida. La trampa del plan de 12 meses es procrastin
 | Reading técnico | 30h | 10% |
 | Behavioral + mocks + apply | 20h | 6% |
 
+Nota: behavioral no espera a Q4. Desde Q1, cada Weekly Review captura una historia STAR cruda en 10-15 minutos. Q4 es para pulir y practicar, no para recordar desde cero.
+
 ## Hitos trimestrales
 
 ### Q1 (meses 1-3): Reactivación + arranque SDK

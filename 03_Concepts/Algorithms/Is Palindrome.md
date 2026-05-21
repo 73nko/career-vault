@@ -52,7 +52,7 @@ function isAlphaNum(c: string): boolean {
 ```
 
 ## Por qué funciona
-Dos ventajas sobre el brute force "reverse and compare":
+Tres ventajas sobre el brute force "reverse and compare":
 
 1. **Ahorra espacio.** No clono el string ni creo una versión limpiada/reversada. Los dos punteros caminan sobre el string original; solo necesito dos índices (O(1) space real).
 2. **Early-exit y short-circuit.** En cuanto los dos caracteres comparados difieren, devuelvo `false` sin terminar de recorrer. El brute force tiene que reversar el string entero antes de empezar a comparar, no puede salir antes.

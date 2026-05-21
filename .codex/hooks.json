@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/73nko/Projects/career-vault/.codex/hooks/session-start.sh'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

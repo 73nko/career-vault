@@ -1,0 +1,253 @@
+/* -------------------------------------------------------
+Violet Hour - Glass
+Obsidian theme adapted from the local Violet Hour style guide.
+------------------------------------------------------- */
+
+@charset "UTF-8";
+
+body {
+  color-scheme: dark;
+
+  --vh-abyss: #06061a;
+  --vh-night: #0d0d2c;
+  --vh-indigo: #1a1745;
+  --vh-violet: #2c2766;
+  --vh-mauve: #4a3d95;
+  --vh-dawn: #6e5ec4;
+  --vh-horizon: #a78dff;
+  --vh-orchid: #b39dff;
+  --vh-lilac: #d6c8ff;
+  --vh-rose-mist: #e2bcff;
+  --vh-bloom: #f0d2ff;
+  --vh-periwinkle: #8da7ff;
+  --vh-ice: #a8c9ff;
+  --vh-cyan-mist: #b9e0ff;
+  --vh-star: #fbf8ff;
+  --vh-silver: #e3dcf6;
+  --vh-silver-58: rgba(227, 220, 246, 0.74);
+  --vh-silver-32: rgba(227, 220, 246, 0.48);
+  --vh-glass-bg: rgba(14, 12, 38, 0.55);
+  --vh-glass-bg-hi: rgba(28, 23, 69, 0.62);
+  --vh-glass-stroke: rgba(214, 200, 255, 0.1);
+  --vh-glass-stroke-hi: rgba(168, 201, 255, 0.22);
+  --vh-selection: rgba(179, 157, 255, 0.22);
+  --vh-cursorline: rgba(168, 201, 255, 0.06);
+
+  --font-interface-theme: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-text-theme: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-editor-theme: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-monospace-theme: "Monaspace Neon", "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+
+  --background-primary: rgba(13, 13, 44, 0.78);
+  --background-primary-alt: rgba(14, 12, 38, 0.86);
+  --background-secondary: rgba(6, 6, 26, 0.72);
+  --background-secondary-alt: rgba(26, 23, 69, 0.78);
+  --background-modifier-border: var(--vh-glass-stroke);
+  --background-modifier-border-hover: var(--vh-glass-stroke-hi);
+  --background-modifier-border-focus: rgba(168, 201, 255, 0.35);
+  --background-modifier-hover: rgba(168, 201, 255, 0.06);
+  --background-modifier-active-hover: rgba(179, 157, 255, 0.12);
+  --background-modifier-form-field: rgba(6, 6, 26, 0.42);
+  --background-modifier-form-field-highlighted: rgba(28, 23, 69, 0.68);
+  --background-modifier-box-shadow: rgba(0, 0, 0, 0.42);
+  --background-modifier-cover: rgba(6, 6, 26, 0.62);
+
+  --text-normal: var(--vh-star);
+  --text-muted: var(--vh-silver);
+  --text-faint: var(--vh-silver-58);
+  --text-on-accent: var(--vh-night);
+  --text-accent: var(--vh-ice);
+  --text-accent-hover: var(--vh-lilac);
+  --text-selection: var(--vh-selection);
+  --text-highlight-bg: rgba(240, 210, 255, 0.14);
+  --text-highlight-bg-active: rgba(240, 210, 255, 0.22);
+
+  --interactive-normal: rgba(28, 23, 69, 0.72);
+  --interactive-hover: rgba(44, 39, 102, 0.78);
+  --interactive-accent: var(--vh-orchid);
+  --interactive-accent-hover: var(--vh-lilac);
+  --color-accent: var(--vh-orchid);
+  --color-accent-1: var(--vh-lilac);
+  --color-accent-2: var(--vh-ice);
+  --color-accent-hsl: 254, 100%, 81%;
+
+  --titlebar-background: rgba(6, 6, 26, 0.82);
+  --titlebar-background-focused: rgba(13, 13, 44, 0.88);
+  --ribbon-background: rgba(6, 6, 26, 0.68);
+  --tab-container-background: rgba(6, 6, 26, 0.62);
+  --tab-outline-color: transparent;
+  --tab-text-color: var(--vh-silver);
+  --tab-text-color-active: var(--vh-lilac);
+  --tab-background-active: rgba(168, 201, 255, 0.12);
+  --nav-item-color: var(--vh-silver);
+  --nav-item-color-hover: var(--vh-star);
+  --nav-item-color-active: var(--vh-ice);
+  --nav-item-background-hover: rgba(168, 201, 255, 0.06);
+  --nav-item-background-active: rgba(168, 201, 255, 0.1);
+
+  --h1-color: var(--vh-lilac);
+  --h2-color: var(--vh-ice);
+  --h3-color: var(--vh-cyan-mist);
+  --h4-color: var(--vh-rose-mist);
+  --h5-color: var(--vh-bloom);
+  --h6-color: var(--vh-silver);
+  --h1-size: 1.75rem;
+  --h2-size: 1.45rem;
+  --h3-size: 1.22rem;
+  --h4-size: 1.05rem;
+  --h5-size: 1rem;
+  --h6-size: 0.92rem;
+
+  --link-color: var(--vh-ice);
+  --link-color-hover: var(--vh-lilac);
+  --link-external-color: var(--vh-cyan-mist);
+  --link-external-color-hover: var(--vh-bloom);
+  --code-normal: var(--vh-cyan-mist);
+  --code-background: rgba(141, 167, 255, 0.04);
+  --code-size: 0.9em;
+  --tag-color: var(--vh-night);
+  --tag-color-hover: var(--vh-night);
+  --tag-background: var(--vh-orchid);
+  --tag-background-hover: var(--vh-lilac);
+  --blockquote-border-color: rgba(168, 201, 255, 0.35);
+  --blockquote-color: var(--vh-silver);
+  --hr-color: var(--vh-glass-stroke-hi);
+  --divider-color: var(--vh-glass-stroke);
+  --indentation-guide-color: rgba(168, 201, 255, 0.1);
+  --indentation-guide-color-active: rgba(168, 201, 255, 0.28);
+  --caret-color: var(--vh-rose-mist);
+  --icon-color: var(--vh-silver);
+  --icon-color-hover: var(--vh-star);
+  --icon-color-active: var(--vh-ice);
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --radius-l: 10px;
+  --radius-xl: 16px;
+}
+
+.theme-dark {
+  --color-red: #e2bcff;
+  --color-orange: #f0d2ff;
+  --color-yellow: #d6c8ff;
+  --color-green: #b9e0ff;
+  --color-cyan: #b9e0ff;
+  --color-blue: #a8c9ff;
+  --color-purple: #b39dff;
+  --color-pink: #e2bcff;
+}
+
+body.theme-dark {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(74, 61, 149, 0.45) 0%, rgba(74, 61, 149, 0) 65%),
+    radial-gradient(ellipse 60% 40% at 100% 30%, rgba(141, 167, 255, 0.18) 0%, rgba(141, 167, 255, 0) 70%),
+    radial-gradient(ellipse 70% 50% at 0% 80%, rgba(179, 157, 255, 0.16) 0%, rgba(179, 157, 255, 0) 70%),
+    var(--vh-abyss);
+}
+
+.workspace,
+.workspace-ribbon,
+.mod-root .workspace-tabs,
+.mod-left-split,
+.mod-right-split {
+  background: transparent;
+}
+
+.workspace-leaf-content,
+.workspace-split.mod-root,
+.modal,
+.prompt,
+.suggestion-container {
+  background: var(--vh-glass-bg);
+  border-color: var(--vh-glass-stroke);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+}
+
+.workspace-leaf.mod-active .workspace-leaf-content {
+  border-color: var(--vh-glass-stroke-hi);
+  box-shadow:
+    inset 0 1px 0 var(--vh-glass-stroke-hi),
+    0 30px 60px -36px rgba(0, 0, 0, 0.72);
+}
+
+.titlebar,
+.workspace-tab-header-container,
+.view-header,
+.status-bar {
+  background: rgba(6, 6, 26, 0.56);
+  border-color: var(--vh-glass-stroke);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+}
+
+.workspace-tab-header {
+  border-radius: 999px;
+  margin: 6px 3px;
+}
+
+.workspace-tab-header.is-active {
+  box-shadow: inset 0 0 0 1px rgba(168, 201, 255, 0.3);
+}
+
+.view-header-title,
+.inline-title,
+.metadata-property-key {
+  color: var(--vh-lilac);
+}
+
+.nav-file-title,
+.nav-folder-title,
+.tree-item-self,
+.metadata-property-value,
+.status-bar,
+.workspace-tab-header {
+  color: var(--vh-silver);
+}
+
+.nav-file-title.is-active,
+.nav-folder-title.is-active,
+.tree-item-self.is-active {
+  color: var(--vh-star);
+}
+
+.cm-s-obsidian .cm-line.cm-active,
+.markdown-source-view.mod-cm6 .cm-active {
+  background: var(--vh-cursorline);
+}
+
+.cm-s-obsidian span.cm-inline-code,
+.markdown-rendered code:not(pre code) {
+  color: var(--vh-cyan-mist);
+  background: rgba(141, 167, 255, 0.04);
+  border: 1px solid var(--vh-glass-stroke);
+  border-radius: 4px;
+}
+
+.markdown-rendered pre,
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock,
+.markdown-source-view.mod-cm6 .cm-codeblock {
+  background: rgba(6, 6, 26, 0.46);
+}
+
+.markdown-rendered pre {
+  border: 1px solid var(--vh-glass-stroke);
+  border-radius: 10px;
+}
+
+.markdown-rendered blockquote,
+.HyperMD-quote {
+  color: var(--vh-silver);
+  border-color: rgba(168, 201, 255, 0.35);
+}
+
+.markdown-rendered mark,
+.cm-highlight {
+  color: var(--vh-bloom);
+  background: rgba(240, 210, 255, 0.14);
+}
+
+.search-result-file-matched-text,
+.is-flashing {
+  color: var(--vh-bloom);
+  background: rgba(240, 210, 255, 0.16);
+}

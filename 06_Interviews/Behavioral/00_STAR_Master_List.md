@@ -4,6 +4,8 @@
 
 Lista maestra de historias STAR a desarrollar. Mínimo 15-20 historias sólidas para Q4. Cada una en su archivo dentro de `06_Interviews/Behavioral/`.
 
+Regla desde Q1: cada Weekly Review captura una historia cruda. No hace falta pulirla; sí hace falta dejar hechos, mi acción concreta y una métrica candidata. Q4 queda para convertirlas en versiones de 30s y 2min.
+
 ## Señales que necesito cubrir para Staff
 
 | Señal | Historias necesarias |
@@ -51,6 +53,19 @@ Brainstorming inicial. Refinar cada una en su archivo.
 ## Patrón de ejecución (Q4)
 
 Cada semana de Q4: redactar 2 historias completas y practicar en voz alta 2 historias ya escritas.
+
+## Captura semanal mínima
+
+```dataview
+TASK
+FROM "06_Interviews/Behavioral"
+WHERE contains(text, "metric")
+```
+
+Preguntas de cierre:
+- ¿Qué hice yo, no el equipo?
+- ¿Qué cambió por mi acción?
+- ¿Qué número puedo defender sin exagerar?
 
 ## Recurso clave
 - [[Books/Staff Engineer]] - cap sobre comunicar impacto

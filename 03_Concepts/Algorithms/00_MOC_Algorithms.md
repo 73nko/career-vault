@@ -4,6 +4,12 @@
 
 Punto de entrada al área Algoritmos del vault. Aquí van patrones y los problemas resueltos referenciados.
 
+## Foco Q1
+
+- Arrays / strings hasta que los patrones salgan sin mirar.
+- Hash map, two pointers, sliding window y binary search antes de tocar grafos/DP.
+- Cada problema debe tener: primera intuición, solución óptima, complejidad, edge cases y "qué diría en entrevista".
+
 ## Patrones (foco en estos)
 
 ### Ordenación / Sorting
@@ -52,11 +58,11 @@ Punto de entrada al área Algoritmos del vault. Aquí van patrones y los problem
 
 ```dataview
 TABLE 
-  pattern as "Patrón",
-  difficulty as "Dificultad",
+  filter(file.tags, (t) => startswith(t, "#pattern/")) as "Patrón",
+  filter(file.tags, (t) => startswith(t, "#difficulty/")) as "Dificultad",
   file.ctime as "Fecha"
 FROM "03_Concepts/Algorithms"
-WHERE pattern
+WHERE contains(file.tags, "#algorithm")
 SORT file.ctime DESC
 ```
 

@@ -38,9 +38,11 @@
 - 
 
 ## Energía global del mes
-- Disciplina (1-5): 
-- Foco (1-5): 
-- Motivación (1-5): 
+- Disciplina (1-5): no registrado
+- Foco (1-5): no registrado
+- Motivación (1-5): no registrado
+
+No dejar métricas vacías: si no se midió, escribir `no registrado`.
 
 ---
 [[Quarterly_Review_actual]]

@@ -1,7 +1,6 @@
 /* ===================================================================
    career-vault custom snippet
-   Sobrio. No pretende ser bonito, pretende ser legible.
-   Cambios mínimos sobre Things theme.
+   Vault semantics layered on top of Violet Hour.
    =================================================================== */
 
 /* Lectura más cómoda */
@@ -31,7 +30,7 @@
   font-size: 0.9em;
   padding: 0.1em 0.35em;
   border-radius: 4px;
-  background: var(--background-secondary);
+  background: rgba(141, 167, 255, 0.04);
 }
 
 /* Tablas con respiro */
@@ -43,37 +42,38 @@
   padding: 0.55em 0.8em;
 }
 .markdown-preview-view th {
-  background: var(--background-secondary);
+  background: rgba(168, 201, 255, 0.08);
   font-weight: 600;
 }
 
 /* Tags semánticos: colores por dominio.
    No abuses: si ves todo el vault rosa, has tageado mal. */
-a.tag[href^="#status/draft"]   { background: #6b7280; color: #fff; }
-a.tag[href^="#status/review"]  { background: #f59e0b; color: #111; }
-a.tag[href^="#status/done"]    { background: #16a34a; color: #fff; }
+a.tag[href^="#status/draft"]   { background: var(--vh-silver-32); color: var(--vh-star); }
+a.tag[href^="#status/review"]  { background: var(--vh-bloom); color: var(--vh-night); }
+a.tag[href^="#status/done"]    { background: var(--vh-cyan-mist); color: var(--vh-night); }
 
-a.tag[href^="#difficulty/easy"]   { background: #16a34a; color: #fff; }
-a.tag[href^="#difficulty/medium"] { background: #f59e0b; color: #111; }
-a.tag[href^="#difficulty/hard"]   { background: #dc2626; color: #fff; }
+a.tag[href^="#difficulty/easy"]   { background: var(--vh-cyan-mist); color: var(--vh-night); }
+a.tag[href^="#difficulty/medium"] { background: var(--vh-bloom); color: var(--vh-night); }
+a.tag[href^="#difficulty/hard"]   { background: var(--vh-rose-mist); color: var(--vh-night); }
 
-a.tag[href^="#signal/"]   { background: #7c3aed; color: #fff; }
-a.tag[href^="#pattern/"]  { background: #0ea5e9; color: #fff; }
-a.tag[href^="#plan"]      { background: #14b8a6; color: #fff; }
-a.tag[href^="#daily"]     { background: #475569; color: #fff; }
-a.tag[href^="#weekly-review"]    { background: #475569; color: #fff; }
-a.tag[href^="#monthly-review"]   { background: #475569; color: #fff; }
-a.tag[href^="#quarterly-review"] { background: #475569; color: #fff; }
-a.tag[href^="#moc"]       { background: #1f2937; color: #f3f4f6; }
-a.tag[href^="#behavioral"] { background: #be185d; color: #fff; }
-a.tag[href^="#book"]      { background: #7c2d12; color: #fff; }
-a.tag[href^="#algorithm"] { background: #0ea5e9; color: #fff; }
+a.tag[href^="#signal/"]   { background: var(--vh-orchid); color: var(--vh-night); }
+a.tag[href^="#pattern/"]  { background: var(--vh-ice); color: var(--vh-night); }
+a.tag[href^="#plan"]      { background: var(--vh-periwinkle); color: var(--vh-night); }
+a.tag[href^="#daily"]     { background: rgba(168, 201, 255, 0.18); color: var(--vh-star); }
+a.tag[href^="#weekly-review"]    { background: rgba(168, 201, 255, 0.18); color: var(--vh-star); }
+a.tag[href^="#monthly-review"]   { background: rgba(168, 201, 255, 0.18); color: var(--vh-star); }
+a.tag[href^="#quarterly-review"] { background: rgba(168, 201, 255, 0.18); color: var(--vh-star); }
+a.tag[href^="#moc"]       { background: rgba(214, 200, 255, 0.14); color: var(--vh-lilac); }
+a.tag[href^="#behavioral"] { background: var(--vh-rose-mist); color: var(--vh-night); }
+a.tag[href^="#book"]      { background: var(--vh-mauve); color: var(--vh-star); }
+a.tag[href^="#algorithm"] { background: var(--vh-ice); color: var(--vh-night); }
 
 a.tag {
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 0.8em;
   font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Checkbox progreso visible en lista de hitos */
@@ -100,7 +100,7 @@ ul.contains-task-list li.task-list-item input[type="checkbox"]:checked + * {
 
 /* Source mode: línea de cursor más visible */
 .cm-active.cm-line {
-  background: rgba(124, 58, 237, 0.07);
+  background: var(--vh-cursorline);
 }
 
 /* Callouts: bordes finos en lugar de macizos */
