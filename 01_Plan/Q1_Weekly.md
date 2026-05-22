@@ -77,8 +77,8 @@ Semanas 10-12 caen en mediados/finales de julio. Si tienes vacaciones, **recorta
 
 ### Output esperado
 
-- [ ] [[Infer Keyword]], [[Template Literal Types]], [[Branded Types]], [[Discriminated Unions]]
-- [ ] 3 notas de algoritmos
+- [x] [[Infer Keyword]], [[Template Literal Types]], [[Branded Types]], [[Discriminated Unions]] ✅ 2026-05-22
+- [x] 3 notas de algoritmos ✅ 2026-05-22
 - [x] `packages/sdk/src/types.ts` con la API tipada ✅ 2026-05-21
 - [x] README con sección "Usage" mostrando el código ideal ✅ 2026-05-21
 - [ ] [[ADR-002-SDK-Public-API]]

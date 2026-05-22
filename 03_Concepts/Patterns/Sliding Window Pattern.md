@@ -130,7 +130,7 @@ Si en lugar de "contiguo" lees "subsecuencia" o "cualquier combinación", no es 
 
 - [[Two Pointers Pattern]]: la ventana deslizante es técnicamente una variante de dos punteros que se mueven en la misma dirección, a diferencia de los punteros convergentes (extremos al centro).
 - [[Hash Map Pattern]]: frecuentemente usado como la estructura que valida el estado interno de la ventana.
-- [[Longest Substring Without Repeating Characters]]: ejemplo canónico de la variante 2.
+- [[Longest Substring Without Duplicates]]: ejemplo canónico de la variante 2.
 
 ## Preguntas que respondería en entrevista
 

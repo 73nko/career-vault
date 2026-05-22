@@ -2,17 +2,17 @@
 
 #concept #project
 
-Source of truth for `packages/sdk-web/src/types.ts` y los esquemas Zod paralelos en `packages/shared/src/schemas.ts`. Materializa el contrato vendido en [[SDK_README|README]] y la decisión formalizada en [[ADR-002-SDK-Public-API]].
+Source of truth for `packages/sdk-web/src/types.ts` and the mirrored Zod schemas in `packages/shared/src/schemas.ts`. Materializes the contract advertised in [[SDK_README|the README]] and the decisions to be formalized in [[ADR-002-SDK-Public-API]] (drafted Sunday).
 
-**Scope:** sólo lo que cruza el límite público del SDK (signatures + wire format). Internals (queue, transport, observers) viven en sus propios módulos sin tipos exportados.
+**Scope:** only what crosses the SDK's public boundary — function signatures and wire format. Internals (queue, transport, observers, session manager) live in their own modules with no exported types.
 
-## Principios
+## Principles
 
-1. **Cero `any`, cero `unknown` en superficie pública.** Si no puedo nombrarlo, no se expone.
-2. **Discriminated unions con `type` literal**, no shape-based discrimination. Zod parsea limpio, narrowing es trivial.
-3. **Propiedades de eventos = escalares.** Nada de objetos anidados en `properties`. ClickHouse vive en columnas; lo plano gana.
-4. **Generics sólo donde aporten narrowing real.** `WebVital<N>` sí (afila `onVital`). Un `Event<T>` genérico no.
-5. **Lo capturado por el SDK ≠ lo configurado por el usuario.** `WebVitalsConfig` es input. `IngestionPayload` es output. Sin solapar campos.
+1. **Zero `any` in the public surface.** `unknown` is allowed where the SDK genuinely cannot constrain the shape (user-provided event properties); everything else is named.
+2. **Discriminated unions on a `type` literal**, not shape-based discrimination. Zod parses cleanly and TypeScript narrowing is mechanical.
+3. **Generics only where they buy real narrowing.** `WebVital<N>` earns its keep by sharpening `onVital`. A blanket `Event<T>` would not.
+4. **Input config and wire format are separate types.** `WebVitalsConfig` is what the consumer hands us. `IngestionPayload` is what hits the network. No shared fields.
+5. **No silent drops.** Invalid payloads are rejected at the ingestion boundary with a typed error response, not dropped.
 
 ---
 
@@ -33,15 +33,15 @@ export type NavigationType =
 
 export interface WebVital<N extends WebVitalName = WebVitalName> {
   name: N;
-  value: number;            // ms, salvo CLS (unitless)
-  rating: WebVitalRating;   // per Google thresholds
-  delta: number;             // cambio desde la última lectura (INP, CLS)
-  id: string;                // único por page load
+  value: number;            // milliseconds, except CLS (unitless)
+  rating: WebVitalRating;   // per Google's CWV thresholds
+  delta: number;            // change since the previous reading (INP, CLS)
+  id: string;               // unique per page load
   navigationType: NavigationType;
 }
 ```
 
-> El genérico `N` no se usa en el SDK casi nunca: existe para que `onVital('LCP', cb)` narrowee `cb`'s arg a `WebVital<'LCP'>`. Sin él, el callback recibiría `WebVital<WebVitalName>` y el `metric.name === 'LCP'` quedaría a cargo del usuario.
+> The `N` generic exists solely so `onVital('LCP', cb)` narrows the callback's argument to `WebVital<'LCP'>`. Without it, the callback would receive `WebVital<WebVitalName>` and the consumer would have to discriminate manually.
 
 ---
 
@@ -55,17 +55,19 @@ export interface User {
 }
 ```
 
-`id` obligatorio. El resto, propiedades escalares libres. Index signature constrained — `string | number | boolean` deja claro qué cabe sin abrir la puerta a `Date` o nested objects que romperían el storage.
+`id` is required; additional properties are restricted to scalars by the index signature. This constraint exists at the boundary that the SDK *can* enforce statically; deeper structures (objects, dates) are rejected at compile time before they ever reach the ingestion layer.
 
 ---
 
 ## Custom event properties
 
 ```ts
-export type EventProperties = Record<string, string | number | boolean | null>;
+export type EventProperties = Record<string, unknown>;
 ```
 
-`null` distingue "explícitamente vacío" de "no enviado" (campo opcional ausente). Igual que SQL.
+A generic type parameter on `track<T>(name, props: T)` would push the burden onto every call site and offer no real safety — the runtime ingestion endpoint validates anyway. `unknown` is the honest type: the SDK doesn't know what callers will send. The Zod schema in `packages/shared` is the authoritative validator at the ingestion boundary; the dashboard's query layer reads from the typed ClickHouse projection downstream.
+
+> Trade-off accepted: callers can pass `{ payment: { card: '...' } }` and the SDK will not type-error. The ingestion endpoint will. This is the right place to enforce it: one validator, runtime, with proper error messages.
 
 ---
 
@@ -81,7 +83,7 @@ export interface VitalEvent {
 
 export interface CustomEvent {
   type: 'custom';
-  name: string;         // ej: 'checkout.completed'
+  name: string;         // e.g. 'checkout.completed'
   properties?: EventProperties;
   url: string;
   timestamp: number;
@@ -90,11 +92,11 @@ export interface CustomEvent {
 export type WebVitalEvent = VitalEvent | CustomEvent;
 ```
 
-> `url` vive en el evento, no en el wrapper. En un SPA, una sesión visita N rutas; cada medición debe conocer la suya. El resto del contexto es estable por sesión y va al wrapper.
+> `url` lives on the event, not on the wrapper. In a SPA, one session may visit many routes; each measurement must carry its own URL. Everything else is session-stable and lives on the wrapper.
 
 ---
 
-## Ingestion payload (lo que sale por sendBeacon)
+## Ingestion payload (what `sendBeacon` ships)
 
 ```ts
 export interface IngestionPayload {
@@ -109,25 +111,53 @@ export interface IngestionPayload {
 }
 ```
 
-> Array de eventos, no uno por request. Habilita el batching que vende el README sin renegociar el wire format.
+> An array of events per request, not a single event. This enables the batching that the README advertises without renegotiating the wire format later.
 
 ---
 
-## Init config (input del usuario)
+## Session lifecycle
+
+`sessionId` is generated and owned by the internal `session.ts` module; it is not configurable and never appears in `WebVitalsConfig`. A session ends — and a fresh `sessionId` is minted on the next event — when any of these holds:
+
+- **Tab close.** The id is stored in `sessionStorage`, so it survives same-tab reloads and SPA navigation but dies when the tab closes.
+- **Idle timeout: 30 min.** If no event is recorded for 30 minutes, the next event opens a new session. Tracked via a `lastActivity` timestamp persisted alongside the id.
+- **Max duration: 4 h.** A session is capped at 4 hours from creation regardless of activity, so a long-lived tab does not collapse a full day into a single session.
+
+This matches how RUM products (Datadog RUM and similar) scope a session. The bound matters because per-session `sampleRate` and per-session derived metrics both assume a session is a coherent, time-bounded unit; an 8-hour tab counted as one session would skew those aggregates.
+
+Consequence: `sampleRate` is evaluated once at session creation, so a session that rolls over via idle timeout or max duration is re-sampled independently of the previous one.
+
+---
+
+## Init config (consumer input)
 
 ```ts
+export type MaybePromise<T> = T | Promise<T>;
+
 export interface WebVitalsConfig {
   projectId: string;
   endpoint: string;
   release?: string;
   environment?: string;
-  sampleRate?: number;                                          // 0..1, default 1
-  debug?: boolean;                                              // default false
-  beforeSend?: (event: WebVitalEvent) => WebVitalEvent | null;  // mutate or drop
+  sampleRate?: number;   // 0..1, default 1. Applied per session (see below).
+  debug?: boolean;       // default false
+  beforeSend?: (event: WebVitalEvent) => MaybePromise<WebVitalEvent | null>;
 }
 ```
 
-> Nada de `transport`, `batchSize`, `flushInterval`, `maxQueueSize` en v0.1. Son knobs que sólo importan cuando alguien los pide. Defaults sensatos y silencio.
+No `transport`, `batchSize`, `flushInterval`, or `maxQueueSize` in v0.1. They become public surface only when a real consumer asks for them. Sensible defaults and silence.
+
+### `sampleRate` semantics
+
+Sampling is applied **per session**, not per event. The decision is made once when the session is created; either every event from that session is sent, or none are. Per-event sampling would yield partial CWV (e.g. LCP but no CLS for the same page load), which produces noisy aggregates and breaks per-session derived metrics.
+
+### `beforeSend` semantics
+
+`beforeSend` may return synchronously or asynchronously. It is awaited before the event is queued. The main thread must never be blocked, so the contract is:
+
+- During normal operation, the SDK awaits `beforeSend` and queues the resolved (or transformed) event.
+- During `visibilitychange` flush (page hide), the SDK awaits `beforeSend` with a **50ms timeout per pending event**. Events that exceed the budget are dropped. This is the documented trade-off: async transforms cannot fully participate in the unload-time flush, because the browser will not wait.
+- Callers performing async PII redaction or remote lookups should be aware that high-latency `beforeSend` reduces the chance of capture on tab close. The SDK logs a `debug`-level warning when a flush drops events due to budget.
 
 ---
 
@@ -135,7 +165,7 @@ export interface WebVitalsConfig {
 
 ```ts
 export type InitFn      = (config: WebVitalsConfig) => void;
-export type IdentifyFn  = (user: User | null) => void;   // null = logout
+export type IdentifyFn  = (user: User | null) => void;   // null clears identity (logout)
 export type TrackFn     = (name: string, properties?: EventProperties) => void;
 export type FlushFn     = () => Promise<void>;
 
@@ -143,7 +173,7 @@ export type VitalCallback<N extends WebVitalName> = (vital: WebVital<N>) => void
 export type OnVitalFn = <N extends WebVitalName>(name: N, callback: VitalCallback<N>) => void;
 ```
 
-Estas signatures se importan tal cual desde el `index.ts` que las implementa:
+These signatures are imported and bound to implementations in `index.ts`:
 
 ```ts
 // packages/sdk-web/src/index.ts
@@ -156,56 +186,72 @@ export const flush:    FlushFn    = ()       => { /* ... */ };
 export const onVital:  OnVitalFn  = (name, cb) => { /* ... */ };
 ```
 
-> Separar el tipo de la implementación con `: Fn = (...) => {}` da: (a) un único sitio donde cambiar la signature, (b) errores de TS en `index.ts` si la implementación se desalinea del contrato.
+> Declaring the type once and binding it with `: Fn = (...) => {}` gives a single place to evolve the signature and produces a TypeScript error in `index.ts` if the implementation drifts from the contract.
 
 ---
 
-## Decisiones no-obvias
+## Design decisions worth flagging
 
-| Decisión | Por qué |
+| Decision | Rationale |
 |---|---|
-| `WebVital<N>` genérico | Permite que `onVital('LCP', cb)` narrowee el callback. Único genérico de la API. |
-| `properties` plano y escalar | ClickHouse es columnar; objetos nested no caben sin JSON-typed columns, que son lentos a query. |
-| `IngestionPayload.events: WebVitalEvent[]` | Habilita batching sin breaking change futuro. Una sola request con N eventos. |
-| `url` en el evento, no en el wrapper | SPAs cambian de ruta dentro de una sesión. Cada medición debe llevar su URL. |
-| `beforeSend` único hook | Una sola extension point pública. Cero `onBeforeSend / onError / transformer`. Menos breaking surface. |
-| `sdk: { name, version }` en payload | El backend puede rechazar SDKs antiguos en el futuro sin renegociar headers. |
-| `identify(null)` en vez de `clearUser()` | Una función menos en la API pública. Mismo signal. |
+| `WebVital<N>` generic | Sole generic in the public API. Enables narrowing in `onVital('LCP', cb)`. |
+| `EventProperties = Record<string, unknown>` | A `T extends Record<string, unknown>` generic on `track` would inflate every call site without adding real safety. Validation belongs at the ingestion boundary, once. |
+| `IngestionPayload.events: WebVitalEvent[]` | Batching is built into the wire format from day one. No breaking change later. |
+| `url` on the event, not the wrapper | SPA sessions span multiple routes; each measurement needs its own URL. |
+| Single `beforeSend` extension point | One public hook instead of `onBeforeSend / onError / transformer`. Minimizes breaking surface in future versions. |
+| `beforeSend` accepts async | Real-world PII redaction often requires async lookups. The cost (a 50ms-budget flush on visibility change) is documented and bounded. |
+| Sampling per session, not per event | Partial CWV from per-event sampling is unusable for aggregates. |
+| Session: `sessionStorage` + 30 min idle + 4 h max | Bounds a session as a coherent, time-limited unit. Per-session sampling and derived metrics assume that bound; an all-day tab as one session would skew aggregates. |
+| `sdk: { name, version }` in the payload | Lets the backend reject ancient clients later without renegotiating headers. |
+| `identify(null)` instead of `clearUser()` | One fewer public function. Same signal. |
 
-## Lo que NO está en estos tipos (y por qué)
+## Deliberately excluded from v0.1
 
-- **`Severity` / `Level`** — no es Sentry. No hay errores aquí.
-- **`Breadcrumb`** — no es Sentry (bis).
-- **`Tags`** — duplican `properties`. Si necesito facetear, ya hay columnas.
-- **`Context` enriquecido (device, OS, locale)** — el backend lo deriva del `userAgent` y headers HTTP. Mantener el payload mínimo.
-- **`Transport` configurable** — sendBeacon → fetch keepalive es lógica interna, no superficie pública.
+- **`Severity` / `Level`** — this is not Sentry; no error tracking.
+- **`Breadcrumb`** — same reasoning.
+- **`Tags`** — duplicate `properties`. If faceting is needed, columns already exist.
+- **Enriched `Context` (device, OS, locale)** — derived server-side from `userAgent` and HTTP headers. Keeps the payload minimal.
+- **Configurable transport** — `sendBeacon` → `fetch keepalive` fallback is internal logic, not public surface.
 
-## Validación server-side
+## Schema drift detection
 
-Cada interface aquí tiene su Zod schema espejado en `packages/shared/src/schemas.ts`. El servidor parsea con `IngestionPayloadSchema.parse(body)`; cualquier shape inválida → 422 con detalle del campo. Sin drops silenciosos.
+Each interface above has a mirrored Zod schema in `packages/shared/src/schemas.ts`. The ingestion endpoint parses with `IngestionPayloadSchema.parse(body)`; invalid shapes return HTTP 422 with field-level detail.
+
+To keep the hand-written TypeScript types and the Zod schemas in sync, CI runs a generator-and-diff step using [`zod-to-ts`](https://github.com/sachinraja/zod-to-ts):
 
 ```ts
-// packages/shared/src/schemas.ts (esqueleto)
-import { z } from 'zod';
+// scripts/check-schema-drift.ts (runs in CI)
+import { zodToTs, printNode } from 'zod-to-ts';
+import { IngestionPayloadSchema, WebVitalSchema /* ... */ } from '@track-vitals/shared';
+import { readFileSync, writeFileSync } from 'node:fs';
 
-export const WebVitalNameSchema = z.enum(['CLS','LCP','INP','FCP','TTFB']);
-// ... resto espejando 1:1 los tipos.
-export const IngestionPayloadSchema = z.object({ /* ... */ });
+const generated = [
+  printNode(zodToTs(WebVitalSchema, 'WebVital').node),
+  printNode(zodToTs(IngestionPayloadSchema, 'IngestionPayload').node),
+  // ... one entry per public type
+].join('\n\n');
 
-// Sanity check: el tipo inferido coincide con el tipado a mano.
-type _Check = z.infer<typeof IngestionPayloadSchema> extends IngestionPayload ? true : false;
+const expectedPath = 'packages/sdk-web/src/types.generated.ts';
+const existing = readFileSync(expectedPath, 'utf8');
+
+if (existing !== generated) {
+  writeFileSync(expectedPath, generated);
+  console.error('Schema drift detected. Run pnpm sync-types and commit the diff.');
+  process.exit(1);
+}
 ```
+
+The generated file lives alongside the hand-written `types.ts` and is checked in. The hand-written types are the public API surface (richer JSDoc, generics like `WebVital<N>`); the generated file is the canonical shape the wire format must conform to. Any divergence — adding a field to Zod without updating the public types, or vice versa — fails CI.
 
 ## Open questions
 
-- **`sessionId` lifecycle:** ¿reset en pestaña nueva o persiste en `sessionStorage`? Probable: `sessionStorage` (sobrevive navegación same-tab, muere en cierre). Decidir antes de escribir el módulo `session.ts`.
-- **`sampleRate` granularity:** ¿sample por sesión o por evento? Por sesión es más útil para CWV (no quieres CLS parcial). Probable default: sesión.
-- **`beforeSend` async:** ¿`(e) => WebVitalEvent | null | Promise<...>`? Async complica el flush en `visibilitychange`. v0.1: síncrono only. Documentar.
+None open for v0.1. All three public-boundary decisions — `sampleRate` granularity, `beforeSend` sync/async, and `sessionId` lifecycle — are closed and documented above. They will be formalized in [[ADR-002-SDK-Public-API]].
 
 ## Links
 
 - [[SDK_README]]
 - [[00_Project_Overview]]
 - [[ADR-001-Monorepo-Structure]]
-- [[ADR-002-SDK-Public-API]]
-- web-vitals lib (referencia para `WebVital` shape): https://github.com/GoogleChrome/web-vitals
+- [[ADR-002-SDK-Public-API]] (pending, target: Sunday 2026-05-24)
+- `web-vitals` library (canonical `WebVital` shape reference): https://github.com/GoogleChrome/web-vitals
+- `zod-to-ts`: https://github.com/sachinraja/zod-to-ts

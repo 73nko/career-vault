@@ -28,7 +28,6 @@ Punto de entrada al área TypeScript del vault. Recuperar nivel profundo es obje
 - [[Discriminated Unions]]
 - [[Type Predicates]]
 - [[Assertion Functions]]
-- [[Exhaustiveness Checks con never]]
 - [[in, typeof, instanceof Narrowing]]
 
 ## Patrones avanzados
