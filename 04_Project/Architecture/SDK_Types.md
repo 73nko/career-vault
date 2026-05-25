@@ -2,7 +2,7 @@
 
 #concept #project
 
-Source of truth for `packages/sdk-web/src/types.ts` and the mirrored Zod schemas in `packages/shared/src/schemas.ts`. Materializes the contract advertised in [[SDK_README|the README]] and the decisions to be formalized in [[ADR-002-SDK-Public-API]] (drafted Sunday).
+Source of truth for `packages/sdk/src/types.ts` and the mirrored Zod schemas in the future shared package. Materializes the contract advertised in [[SDK_README|the README]] and formalized in [[ADR-002-SDK-Public-API]].
 
 **Scope:** only what crosses the SDK's public boundary — function signatures and wire format. Internals (queue, transport, observers, session manager) live in their own modules with no exported types.
 
@@ -176,7 +176,7 @@ export type OnVitalFn = <N extends WebVitalName>(name: N, callback: VitalCallbac
 These signatures are imported and bound to implementations in `index.ts`:
 
 ```ts
-// packages/sdk-web/src/index.ts
+// packages/sdk/src/index.ts
 import type { InitFn, IdentifyFn, TrackFn, FlushFn, OnVitalFn } from './types';
 
 export const init:     InitFn     = (config) => { /* ... */ };
@@ -215,7 +215,7 @@ export const onVital:  OnVitalFn  = (name, cb) => { /* ... */ };
 
 ## Schema drift detection
 
-Each interface above has a mirrored Zod schema in `packages/shared/src/schemas.ts`. The ingestion endpoint parses with `IngestionPayloadSchema.parse(body)`; invalid shapes return HTTP 422 with field-level detail.
+Each interface above will have a mirrored Zod schema in the shared package once ingestion starts. The ingestion endpoint parses with `IngestionPayloadSchema.parse(body)`; invalid shapes return HTTP 422 with field-level detail.
 
 To keep the hand-written TypeScript types and the Zod schemas in sync, CI runs a generator-and-diff step using [`zod-to-ts`](https://github.com/sachinraja/zod-to-ts):
 
@@ -231,7 +231,7 @@ const generated = [
   // ... one entry per public type
 ].join('\n\n');
 
-const expectedPath = 'packages/sdk-web/src/types.generated.ts';
+const expectedPath = 'packages/sdk/src/types.generated.ts';
 const existing = readFileSync(expectedPath, 'utf8');
 
 if (existing !== generated) {
@@ -245,13 +245,13 @@ The generated file lives alongside the hand-written `types.ts` and is checked in
 
 ## Open questions
 
-None open for v0.1. All three public-boundary decisions — `sampleRate` granularity, `beforeSend` sync/async, and `sessionId` lifecycle — are closed and documented above. They will be formalized in [[ADR-002-SDK-Public-API]].
+None open for v0.1. All three public-boundary decisions — `sampleRate` granularity, `beforeSend` sync/async, and `sessionId` lifecycle — are closed here and formalized in [[ADR-002-SDK-Public-API]].
 
 ## Links
 
 - [[SDK_README]]
 - [[00_Project_Overview]]
 - [[ADR-001-Monorepo-Structure]]
-- [[ADR-002-SDK-Public-API]] (pending, target: Sunday 2026-05-24)
+- [[ADR-002-SDK-Public-API]]
 - `web-vitals` library (canonical `WebVital` shape reference): https://github.com/GoogleChrome/web-vitals
 - `zod-to-ts`: https://github.com/sachinraja/zod-to-ts

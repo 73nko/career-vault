@@ -81,7 +81,7 @@ Semanas 10-12 caen en mediados/finales de julio. Si tienes vacaciones, **recorta
 - [x] 3 notas de algoritmos ✅ 2026-05-22
 - [x] `packages/sdk/src/types.ts` con la API tipada ✅ 2026-05-21
 - [x] README con sección "Usage" mostrando el código ideal ✅ 2026-05-21
-- [ ] [[ADR-002-SDK-Public-API]]
+- [x] [[ADR-002-SDK-Public-API]] ✅ 2026-05-25
 - [ ] 1 captura STAR cruda en [[00_STAR_Master_List]] (sin pulir, sólo hechos + posible métrica)
 
 ---
