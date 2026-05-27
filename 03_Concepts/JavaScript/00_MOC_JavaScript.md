@@ -40,8 +40,7 @@ Punto de entrada al área JavaScript del vault. Foco: dominio profundo del lengu
 
 ## Async y concurrencia
 
-- [[Event Loop]]
-- [[Microtasks vs Macrotasks]]
+- [[Event Loop y Microtasks]]
 - [[Promise internals]]
 - [[async await desugared]]
 - [[Generators e iteradores]]

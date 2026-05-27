@@ -82,7 +82,7 @@ Semanas 10-12 caen en mediados/finales de julio. Si tienes vacaciones, **recorta
 - [x] `packages/sdk/src/types.ts` con la API tipada ✅ 2026-05-21
 - [x] README con sección "Usage" mostrando el código ideal ✅ 2026-05-21
 - [x] [[ADR-002-SDK-Public-API]] ✅ 2026-05-25
-- [ ] 1 captura STAR cruda en [[00_STAR_Master_List]] (sin pulir, sólo hechos + posible métrica)
+- [x] 1 captura STAR cruda en [[00_STAR_Master_List]] (sin pulir, sólo hechos + posible métrica) ✅ 2026-05-25
 
 ---
 
@@ -372,7 +372,7 @@ En cada Weekly Review:
 - Notas atómicas creadas
 - Commits al proyecto
 - Energy + foco (1-5)
-- 1 historia STAR cruda capturada (10-15 min, aunque no se redacte completa)
+- 1 historia STAR cruda capturada cada 2 semanas (10-15 min, sólo situación + acción + métrica + signal — sin pulir). Pulido formal con `/star` arranca en Q3. Cambio acordado en [[2026-W21]].
 
 ---
 
